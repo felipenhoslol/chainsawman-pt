@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCharacterTabs();
   setupGuestbook();
   setupLightbox();
+  setupTrackHoverPopups();
 });
 
 // ==========================================
@@ -276,10 +277,10 @@ function setupGuestbook() {
   function renderPosts() {
     if (!postsContainer) return;
 
-    let posts = localStorage.getItem("csm_gb_posts");
+    let posts = localStorage.getItem("csm_gb_posts_pt_br");
     if (!posts) {
       posts = defaultPosts;
-      localStorage.setItem("csm_gb_posts", JSON.stringify(posts));
+      localStorage.setItem("csm_gb_posts_pt_br", JSON.stringify(posts));
     } else {
       posts = JSON.parse(posts);
     }
@@ -314,9 +315,9 @@ function setupGuestbook() {
       const now = new Date();
       const date = `${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}/${now.getFullYear()} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
-      let posts = JSON.parse(localStorage.getItem("csm_gb_posts") || "[]");
+      let posts = JSON.parse(localStorage.getItem("csm_gb_posts_pt_br") || "[]");
       posts.push({ name, avatar: selectedAvatar, message, date });
-      localStorage.setItem("csm_gb_posts", JSON.stringify(posts));
+      localStorage.setItem("csm_gb_posts_pt_br", JSON.stringify(posts));
 
       nameInput.value = "";
       msgInput.value = "";
@@ -386,4 +387,52 @@ function escapeHTML(str) {
       '"': '&quot;'
     }[tag] || tag)
   );
+}
+
+// ==========================================
+// 7. TRACK HOVER ALBUM POPUPS
+// ==========================================
+function setupTrackHoverPopups() {
+  const rows = document.querySelectorAll(".tracklist tbody tr");
+  
+  let popup = document.querySelector(".track-popup");
+  if (!popup) {
+    popup = document.createElement("div");
+    popup.className = "track-popup";
+    const img = document.createElement("img");
+    popup.appendChild(img);
+    document.body.appendChild(popup);
+  }
+  
+  const popupImg = popup.querySelector("img");
+  
+  const coverImages = {
+    0: "csm/irisout.png",
+    1: "csm/janedoe.png",
+    2: "csm/kensuke.png",
+    3: "csm/kensuke.png",
+    4: "csm/kensuke.png"
+  };
+  
+  rows.forEach((row, idx) => {
+    row.addEventListener("mouseenter", () => {
+      const imgSrc = coverImages[idx] || "csm/kensuke.png";
+      popupImg.src = imgSrc;
+      
+      // Calculate row position relative to document
+      const rect = row.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      
+      // Position at left center of the row (transform in CSS will shift it left outside)
+      popup.style.top = `${rect.top + scrollTop + rect.height / 2}px`;
+      popup.style.left = `${rect.left + scrollLeft}px`;
+      
+      popup.classList.add("active");
+    });
+    
+    row.addEventListener("mouseleave", () => {
+      popup.classList.remove("active");
+    });
+  });
 }
