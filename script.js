@@ -205,6 +205,9 @@ function setupMusicPlayer() {
         audio.pause();
       } else if (index === currentTrack && audio.paused) {
         // Retomar a faixa atual
+        if (!audio.src || audio.src === window.location.href) {
+          loadTrack(index);
+        }
         audio.play();
       } else {
         // Trocar de faixa
