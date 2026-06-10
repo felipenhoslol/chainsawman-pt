@@ -1,4 +1,4 @@
-// Chainsaw Man Fansite â€” Script
+// Chainsaw Man Fansite — Script
 document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupVisitorCounter();
@@ -198,7 +198,7 @@ function setupMusicPlayer() {
     updateTracklistButtons();
   });
 
-  // BotÃµes da tracklist
+  // Botões da tracklist
   document.querySelectorAll(".play-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const index = parseInt(btn.getAttribute("data-track"));
@@ -216,7 +216,7 @@ function setupMusicPlayer() {
         loadTrack(index);
         audio.play();
       }
-      // O estado dos botÃµes serÃ¡ atualizado pelos eventos play/pause
+      // O estado dos botões será atualizado pelos eventos play/pause
     });
   });
 
@@ -252,10 +252,10 @@ function setupCharacterTabs() {
 // 5. GUESTBOOK
 // ==========================================
 const defaultPosts = [
-  { name: "DenjiFan_2003", avatar: "csm/pochita.png", message: "Pochita Ã© o melhor personagem! Chorei demais quando ele se fundiu com o Denji. ðŸ˜­", date: "06/05/2026 12:45" },
-  { name: "RezeSimp", avatar: "csm/reze.png", message: "O filme da Reze Ã© simplesmente perfeito. A cena na piscina destruiu meu coraÃ§Ã£o. MAPPA nunca decepciona!", date: "05/30/2026 18:33" },
-  { name: "PowerPresidente", avatar: "csm/power.png", message: "AJOELHEM-SE PERANTE POWER! Humanos sÃ£o lixo! Votem em Power para presidente do universo!", date: "05/15/2026 09:30" },
-  { name: "Aki_Sigma", avatar: "csm/aki.png", message: "A espada do Aki Ã© literalmente amaldiÃ§oada. Ã‰ muito foda mas trÃ¡gico ao mesmo tempo. Trilha sonora absurda.", date: "05/10/2026 18:02" }
+  { name: "DenjiFan_2003", avatar: "csm/pochita.png", message: "Pochita é o melhor personagem! Chorei demais quando ele se fundiu com o Denji. 😭", date: "06/05/2026 12:45" },
+  { name: "RezeSimp", avatar: "csm/reze.png", message: "O filme da Reze é simplesmente perfeito. A cena na piscina destruiu meu coração. MAPPA nunca decepciona!", date: "05/30/2026 18:33" },
+  { name: "PowerPresidente", avatar: "csm/power.png", message: "AJOELHEM-SE PERANTE POWER! Humanos são lixo! Votem em Power para presidente do universo!", date: "05/15/2026 09:30" },
+  { name: "Aki_Sigma", avatar: "csm/aki.png", message: "A espada do Aki é literalmente amaldiçoada. É muito foda mas trágico ao mesmo tempo. Trilha sonora absurda.", date: "05/10/2026 18:02" }
 ];
 
 function setupGuestbook() {
@@ -357,7 +357,7 @@ function setupLightbox() {
     document.body.style.overflow = "";
   }
 
-  // Todas as imagens expandÃ­veis
+  // Todas as imagens expandíveis
   document.querySelectorAll(".expandable").forEach(img => {
     img.addEventListener("click", () => {
       const desc = img.getAttribute("data-desc") || "";
@@ -489,7 +489,7 @@ function setupMangaReader() {
   let touchendX   = 0;
   let touchendY   = 0;
 
-  // â”€â”€ Zoom helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Zoom helpers ──────────────────────────────────────────────
   function clampZoom(z) {
     return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
   }
@@ -578,7 +578,7 @@ function setupMangaReader() {
     applyTransform();
   }
 
-  // â”€â”€ Canvas rendering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Canvas rendering ──────────────────────────────────────────
   function updateCanvas() {
     canvas.innerHTML = "";
     resetZoom();
@@ -669,7 +669,7 @@ function setupMangaReader() {
     }
   }
 
-  // â”€â”€ Event listeners â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Event listeners ────────────────────────────────────────────
 
   // Open
   if (startBtn) startBtn.addEventListener("click", () => openManga(0));
@@ -723,7 +723,7 @@ function setupMangaReader() {
     zoomAt(clampZoom(zoomLevel + delta), e.clientX, e.clientY);
   }, { passive: false });
 
-  // â”€â”€ Click on canvas to toggle zoom (only if no drag happened) â”€
+  // ── Click on canvas to toggle zoom (only if no drag happened) ──
   canvas.addEventListener("click", (e) => {
     if (dragMoved) { dragMoved = false; return; }
     if (zoomLevel > 1.0) {
@@ -734,7 +734,7 @@ function setupMangaReader() {
     }
   });
 
-  // â”€â”€ Mouse drag to pan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Mouse drag to pan ──────────────────────────────────────────
   canvas.addEventListener("mousedown", (e) => {
     if (zoomLevel <= 1.0) return;
     if (e.button !== 0) return;
@@ -767,7 +767,7 @@ function setupMangaReader() {
     setTimeout(() => { dragMoved = false; }, 50);
   });
 
-  // â”€â”€ Keyboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Keyboard ──────────────────────────────────────────────────
   document.addEventListener("keydown", (e) => {
     if (!modal.classList.contains("active")) return;
     if (e.key === "Escape") {
@@ -791,7 +791,7 @@ function setupMangaReader() {
     }
   });
 
-  // â”€â”€ Scroll page indicator update (cascade mode) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Scroll page indicator update (cascade mode) ──────────────
   viewport.addEventListener("scroll", () => {
     if (readingMode !== "cascade") return;
     const pages = canvas.querySelectorAll(".manga-page");
@@ -806,7 +806,7 @@ function setupMangaReader() {
     currentIndicator.textContent = best + 1;
   });
 
-  // â”€â”€ Touch swipe (page mode) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Touch swipe (page mode) ──────────────────────────────────
   viewport.addEventListener("touchstart", (e) => {
     if (zoomLevel > 1.0) return;
     touchstartX = e.changedTouches[0].screenX;
