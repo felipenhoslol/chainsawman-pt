@@ -689,6 +689,151 @@ body {
   border-color: var(--red-dark);
 }
 
+/* Comic Showcase Card */
+.comic-showcase {
+  margin-top: 16px;
+  background: var(--panel-lighter);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.comic-showcase:hover {
+  border-color: var(--red-dark);
+  box-shadow: 0 0 15px rgba(196, 30, 58, 0.15);
+}
+.comic-card {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+.comic-cover-container {
+  position: relative;
+  width: 150px;
+  min-width: 150px;
+  height: 210px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.comic-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.comic-card:hover .comic-cover {
+  transform: scale(1.05);
+}
+.comic-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.comic-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.comic-info h3 {
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.comic-meta {
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.comic-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.read-comic-btn {
+  align-self: flex-start;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px var(--red-glow);
+}
+.read-comic-btn:hover {
+  background: #e42e4d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(196, 30, 58, 0.5);
+}
+
+/* Comic Pages Thumbnails */
+.comic-pages-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+.comic-page-thumb {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  aspect-ratio: 3/4.2;
+}
+.comic-page-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.comic-page-thumb:hover {
+  border-color: var(--red);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px var(--red-glow);
+}
+.page-number {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 11px;
+  text-align: center;
+  padding: 4px 0;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .comic-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .read-comic-btn {
+    align-self: center;
+  }
+  .comic-pages-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+
 /* ============================================
    TICKET / WHERE TO WATCH
    ============================================ */
@@ -1015,6 +1160,276 @@ body {
 .lightbox-close:hover {
   opacity: 1;
   color: var(--red);
+}
+
+/* ============================================
+   MANGA READER MODAL
+   ============================================ */
+.manga-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(6, 6, 6, 0.98);
+  z-index: 10000;
+  flex-direction: column;
+  overflow: hidden;
+}
+.manga-modal.active {
+  display: flex;
+}
+
+/* Modal Close Button */
+.manga-close {
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s, color 0.2s;
+  z-index: 10002;
+  line-height: 1;
+}
+.manga-close:hover {
+  opacity: 1;
+  color: var(--red);
+}
+
+/* Toolbar */
+.manga-toolbar {
+  background: rgba(20, 20, 20, 0.95);
+  border-bottom: 2px solid var(--red-dark);
+  padding: 12px 60px 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10001;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.manga-title {
+  font-family: 'Zen Dots', cursive;
+  color: var(--red);
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.manga-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.manga-control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,0.4);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.control-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.manga-btn {
+  background: var(--panel-lighter);
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+.manga-btn:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: rgba(196, 30, 58, 0.1);
+}
+.manga-btn.active {
+  background: var(--red-dark);
+  border-color: var(--red);
+  color: #fff;
+}
+.zoom-indicator {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  min-width: 42px;
+  text-align: center;
+}
+.manga-page-info {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(0,0,0,0.6);
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  letter-spacing: 1px;
+}
+
+/* Viewport & Canvas */
+.manga-viewport {
+  flex: 1;
+  overflow: hidden;   /* transform-zoom: no scroll bars, JS manages panX/panY */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  user-select: none;
+}
+
+/* In cascade mode, viewport must scroll vertically */
+.manga-modal.mode-cascade .manga-viewport {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  scroll-behavior: smooth;
+}
+
+.manga-canvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: top center;
+  /* NO CSS transition on transform — JS controls it in real-time for instant feedback */
+  will-change: transform;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Manga Page Style in Modal */
+.manga-page {
+  max-width: 100%;
+  object-fit: contain;
+  border: 2px solid var(--border);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  border-radius: 6px;
+  background: #000;
+  display: block;
+  /* cursor is set by JS based on zoom state */
+}
+
+/* Dragging cursor on canvas */
+.manga-canvas {
+  cursor: zoom-in; /* default; JS will override to grab/grabbing */
+}
+
+/* Horizontal Mode Specifics */
+.manga-modal.mode-page .manga-viewport {
+  align-items: center; /* center vertically in page mode */
+  padding: 20px 80px; /* make room for the side arrows */
+}
+.manga-modal.mode-page .manga-canvas {
+  max-width: 100%;
+  transform-origin: center center;
+}
+.manga-modal.mode-page .manga-page {
+  max-height: calc(100vh - 100px);
+  width: auto;
+  max-width: 100%;
+  animation: pageIn 0.2s ease-out;
+}
+
+/* Cascade Mode Specifics */
+.manga-modal.mode-cascade .manga-canvas {
+  gap: 16px;
+  padding-bottom: 100px;
+  width: 100%;
+  max-width: 800px;
+}
+.manga-modal.mode-cascade .manga-page {
+  max-height: none;
+  width: 100%;
+  object-fit: contain;
+}
+
+/* Sidebar Nav Arrows */
+.manga-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(10, 10, 10, 0.65);
+  border: 2px solid var(--border);
+  color: #fff;
+  font-size: 28px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10001;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+.manga-nav-arrow:hover {
+  background: var(--red-dark);
+  border-color: var(--red);
+  box-shadow: 0 0 15px var(--red-glow);
+  transform: translateY(-50%) scale(1.08);
+}
+.manga-nav-arrow.prev {
+  left: 24px;
+}
+.manga-nav-arrow.next {
+  right: 24px;
+}
+.manga-nav-arrow:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  border-color: var(--border);
+  background: rgba(10, 10, 10, 0.3);
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+
+/* Hide navigation arrows in vertical cascade mode */
+.manga-modal.mode-cascade .manga-nav-arrow {
+  display: none !important;
+}
+
+/* Responsive Manga Modal */
+@media (max-width: 768px) {
+  .manga-toolbar {
+    padding: 10px 45px 10px 15px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .manga-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .manga-nav-arrow {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+  .manga-nav-arrow.prev {
+    left: 10px;
+  }
+  .manga-nav-arrow.next {
+    right: 10px;
+  }
+  .zoom-group {
+    display: none;
+  }
 }
 
 /* ============================================

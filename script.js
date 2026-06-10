@@ -1,4 +1,4 @@
-// Chainsaw Man Fansite — Script
+// Chainsaw Man Fansite â€” Script
 document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupVisitorCounter();
@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupGuestbook();
   setupLightbox();
   setupTrackHoverPopups();
+  setupMangaReader();
 });
 
 // ==========================================
@@ -197,7 +198,7 @@ function setupMusicPlayer() {
     updateTracklistButtons();
   });
 
-  // Botões da tracklist
+  // BotÃµes da tracklist
   document.querySelectorAll(".play-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const index = parseInt(btn.getAttribute("data-track"));
@@ -215,7 +216,7 @@ function setupMusicPlayer() {
         loadTrack(index);
         audio.play();
       }
-      // O estado dos botões será atualizado pelos eventos play/pause
+      // O estado dos botÃµes serÃ¡ atualizado pelos eventos play/pause
     });
   });
 
@@ -251,10 +252,10 @@ function setupCharacterTabs() {
 // 5. GUESTBOOK
 // ==========================================
 const defaultPosts = [
-  { name: "DenjiFan_2003", avatar: "csm/pochita.png", message: "Pochita é o melhor personagem! Chorei demais quando ele se fundiu com o Denji. 😭", date: "06/05/2026 12:45" },
-  { name: "RezeSimp", avatar: "csm/reze.png", message: "O filme da Reze é simplesmente perfeito. A cena na piscina destruiu meu coração. MAPPA nunca decepciona!", date: "05/30/2026 18:33" },
-  { name: "PowerPresidente", avatar: "csm/power.png", message: "AJOELHEM-SE PERANTE POWER! Humanos são lixo! Votem em Power para presidente do universo!", date: "05/15/2026 09:30" },
-  { name: "Aki_Sigma", avatar: "csm/aki.png", message: "A espada do Aki é literalmente amaldiçoada. É muito foda mas trágico ao mesmo tempo. Trilha sonora absurda.", date: "05/10/2026 18:02" }
+  { name: "DenjiFan_2003", avatar: "csm/pochita.png", message: "Pochita Ã© o melhor personagem! Chorei demais quando ele se fundiu com o Denji. ðŸ˜­", date: "06/05/2026 12:45" },
+  { name: "RezeSimp", avatar: "csm/reze.png", message: "O filme da Reze Ã© simplesmente perfeito. A cena na piscina destruiu meu coraÃ§Ã£o. MAPPA nunca decepciona!", date: "05/30/2026 18:33" },
+  { name: "PowerPresidente", avatar: "csm/power.png", message: "AJOELHEM-SE PERANTE POWER! Humanos sÃ£o lixo! Votem em Power para presidente do universo!", date: "05/15/2026 09:30" },
+  { name: "Aki_Sigma", avatar: "csm/aki.png", message: "A espada do Aki Ã© literalmente amaldiÃ§oada. Ã‰ muito foda mas trÃ¡gico ao mesmo tempo. Trilha sonora absurda.", date: "05/10/2026 18:02" }
 ];
 
 function setupGuestbook() {
@@ -356,7 +357,7 @@ function setupLightbox() {
     document.body.style.overflow = "";
   }
 
-  // Todas as imagens expandíveis
+  // Todas as imagens expandÃ­veis
   document.querySelectorAll(".expandable").forEach(img => {
     img.addEventListener("click", () => {
       const desc = img.getAttribute("data-desc") || "";
@@ -435,4 +436,391 @@ function setupTrackHoverPopups() {
       popup.classList.remove("active");
     });
   });
+}
+
+// ==========================================
+// 8. MANGA READER
+// ==========================================
+function setupMangaReader() {
+  const modal = document.getElementById("manga-modal");
+  if (!modal) return;
+
+  const closeBtn      = document.getElementById("manga-close");
+  const startBtn      = document.getElementById("start-comic-btn");
+  const pageThumbs    = document.querySelectorAll(".comic-page-thumb");
+  const btnModePage   = document.getElementById("btn-mode-page");
+  const btnModeCascade= document.getElementById("btn-mode-cascade");
+  const btnZoomOut    = document.getElementById("btn-zoom-out");
+  const btnZoomIn     = document.getElementById("btn-zoom-in");
+  const btnZoomReset  = document.getElementById("btn-zoom-reset");
+  const zoomIndicator = document.getElementById("zoom-indicator");
+  const currentIndicator = document.getElementById("manga-current-indicator");
+  const totalIndicator   = document.getElementById("manga-total-indicator");
+  const viewport  = document.getElementById("manga-viewport");
+  const canvas    = document.getElementById("manga-canvas");
+  const prevBtn   = document.getElementById("manga-nav-prev");
+  const nextBtn   = document.getElementById("manga-nav-next");
+
+  const mangaPages = ["csm/1.png","csm/2.png","csm/3.png","csm/4.png","csm/5.png"];
+  const ZOOM_STEP  = 0.25;
+  const ZOOM_MIN   = 1.0;
+  const ZOOM_MAX   = 3.0;
+
+  let currentPageIndex = 0;
+  let readingMode = "page"; // default: páginas
+
+  // --- Zoom state (transform-based, like real manga sites) ---
+  let zoomLevel = 1.0;
+  // Pan origin in canvas coordinates
+  let panX = 0;
+  let panY = 0;
+
+  // Mouse drag state
+  let isDragging = false;
+  let dragMoved  = false;
+  let dragStartMouseX = 0;
+  let dragStartMouseY = 0;
+  let dragStartPanX   = 0;
+  let dragStartPanY   = 0;
+
+  // Touch swipe state
+  let touchstartX = 0;
+  let touchstartY = 0;
+  let touchendX   = 0;
+  let touchendY   = 0;
+
+  // â”€â”€ Zoom helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function clampZoom(z) {
+    return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+  }
+
+  /**
+   * Apply zoom + pan via CSS transform on the canvas.
+   * We translate BEFORE scaling so the origin works correctly.
+   *   transform: translate(panX, panY) scale(zoom)
+   * The viewport uses overflow:hidden; panning is encoded in panX/panY.
+   */
+  function applyTransform() {
+    canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+    zoomIndicator.textContent = `${Math.round(zoomLevel * 100)}%`;
+
+    // Cursor feedback
+    if (zoomLevel > 1.0) {
+      canvas.style.cursor = isDragging ? "grabbing" : "grab";
+    } else {
+      canvas.style.cursor = "zoom-in";
+    }
+
+    // Show/hide nav arrows & reset pan when zoom is 1
+    if (zoomLevel <= 1.0) {
+      panX = 0; panY = 0;
+      canvas.style.transform = `translate(0px, 0px) scale(1)`;
+    }
+  }
+
+  /**
+   * Zoom centred on a point (viewportX, viewportY) in viewport pixels.
+   * Algorithm used by MangaDex / ComicK:
+   *   1. Find where that point sits in "canvas space" before the zoom.
+   *   2. After zoom, adjust pan so that canvas point stays under the mouse.
+   */
+  function zoomAt(newZoom, vpX, vpY) {
+    newZoom = clampZoom(newZoom);
+    if (newZoom === zoomLevel) return;
+
+    // Current canvas bounding rect relative to viewport
+    const vRect  = viewport.getBoundingClientRect();
+    const cRect  = canvas.getBoundingClientRect();
+
+    // Mouse position relative to the canvas top-left (in screen px)
+    const mouseOnCanvasX = vpX - cRect.left;
+    const mouseOnCanvasY = vpY - cRect.top;
+
+    // Those same coords in the unscaled canvas space
+    const canvasSpaceX = mouseOnCanvasX / zoomLevel;
+    const canvasSpaceY = mouseOnCanvasY / zoomLevel;
+
+    // New pan so the point stays fixed under the cursor
+    const scaleDiff = newZoom - zoomLevel;
+    panX -= canvasSpaceX * scaleDiff;
+    panY -= canvasSpaceY * scaleDiff;
+
+    zoomLevel = newZoom;
+    clampPan();
+    applyTransform();
+  }
+
+  function clampPan() {
+    if (zoomLevel <= 1.0) { panX = 0; panY = 0; return; }
+    // Allow panning up to the canvas overflow in each direction
+    const vRect = viewport.getBoundingClientRect();
+    const scaledW = canvas.scrollWidth * zoomLevel;
+    const scaledH = canvas.scrollHeight * zoomLevel;
+    
+    // Horizontal boundary (always symmetric, since origin is horizontally centered in both modes)
+    const maxX = Math.max(0, (scaledW - vRect.width) / 2);
+    panX = Math.min(maxX, Math.max(-maxX, panX));
+
+    // Vertical boundary depends on the transform origin (page: center center; cascade: top center)
+    if (readingMode === "page") {
+      const maxY = Math.max(0, (scaledH - vRect.height) / 2);
+      panY = Math.min(maxY, Math.max(-maxY, panY));
+    } else {
+      // Cascade mode: top center origin, meaning top starts at 0 and extends downwards to scaledH.
+      // Maximum scroll-up (negative panY) brings the bottom of the canvas into view.
+      const minY = -Math.max(0, scaledH - vRect.height);
+      panY = Math.min(0, Math.max(minY, panY));
+    }
+  }
+
+  function resetZoom() {
+    zoomLevel = 1.0; panX = 0; panY = 0;
+    applyTransform();
+  }
+
+  // â”€â”€ Canvas rendering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function updateCanvas() {
+    canvas.innerHTML = "";
+    resetZoom();
+
+    if (readingMode === "page") {
+      totalIndicator.textContent   = mangaPages.length;
+      currentIndicator.textContent = currentPageIndex + 1;
+
+      const img = document.createElement("img");
+      img.src       = mangaPages[currentPageIndex];
+      img.alt       = `Página ${currentPageIndex + 1}`;
+      img.className = "manga-page";
+      canvas.appendChild(img);
+
+      prevBtn.disabled = currentPageIndex === 0;
+      nextBtn.disabled = currentPageIndex === mangaPages.length - 1;
+
+    } else {
+      // CASCADE: all pages stacked
+      totalIndicator.textContent   = mangaPages.length;
+      currentIndicator.textContent = currentPageIndex + 1;
+
+      mangaPages.forEach((src, idx) => {
+        const img = document.createElement("img");
+        img.className = "manga-page";
+        img.alt       = `Página ${idx + 1}`;
+        
+        // Scroll target image into view as soon as it loads to guarantee its height is resolved
+        if (idx === currentPageIndex) {
+          img.onload = () => {
+            img.scrollIntoView({ block: "start", behavior: "instant" });
+          };
+        }
+        
+        img.src = src;
+        canvas.appendChild(img);
+      });
+
+      // Fallback scroll in case of cache or immediate rendering
+      setTimeout(() => {
+        const pages = canvas.querySelectorAll(".manga-page");
+        if (pages[currentPageIndex]) {
+          pages[currentPageIndex].scrollIntoView({ block: "start", behavior: "instant" });
+        }
+      }, 50);
+    }
+  }
+
+  function openManga(index) {
+    const parsed = parseInt(index, 10);
+    currentPageIndex = isNaN(parsed) ? 0 : parsed;
+    modal.className  = `manga-modal active mode-${readingMode}`;
+    document.body.style.overflow = "hidden";
+    syncModeButtons();
+    updateCanvas();
+    viewport.scrollLeft = 0;
+    viewport.scrollTop  = 0;
+  }
+
+  function closeManga() {
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+    canvas.innerHTML = "";
+    resetZoom();
+  }
+
+  function syncModeButtons() {
+    if (readingMode === "cascade") {
+      btnModeCascade.classList.add("active");
+      btnModePage.classList.remove("active");
+    } else {
+      btnModePage.classList.add("active");
+      btnModeCascade.classList.remove("active");
+    }
+  }
+
+  function prevPage() {
+    if (readingMode === "page" && currentPageIndex > 0) {
+      currentPageIndex--;
+      updateCanvas();
+    }
+  }
+
+  function nextPage() {
+    if (readingMode === "page" && currentPageIndex < mangaPages.length - 1) {
+      currentPageIndex++;
+      updateCanvas();
+    }
+  }
+
+  // â”€â”€ Event listeners â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  // Open
+  if (startBtn) startBtn.addEventListener("click", () => openManga(0));
+  pageThumbs.forEach(thumb => {
+    thumb.addEventListener("click", () => openManga(thumb.getAttribute("data-page-index")));
+  });
+
+  // Close
+  if (closeBtn) closeBtn.addEventListener("click", closeManga);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeManga();
+  });
+
+  // Mode switch
+  if (btnModePage) {
+    btnModePage.addEventListener("click", () => {
+      if (readingMode !== "page") {
+        readingMode = "page";
+        modal.classList.replace("mode-cascade", "mode-page");
+        syncModeButtons();
+        updateCanvas();
+      }
+    });
+  }
+  if (btnModeCascade) {
+    btnModeCascade.addEventListener("click", () => {
+      if (readingMode !== "cascade") {
+        readingMode = "cascade";
+        modal.classList.replace("mode-page", "mode-cascade");
+        syncModeButtons();
+        updateCanvas();
+      }
+    });
+  }
+
+  // Nav arrows
+  if (prevBtn) prevBtn.addEventListener("click", prevPage);
+  if (nextBtn) nextBtn.addEventListener("click", nextPage);
+
+  // Toolbar zoom buttons
+  if (btnZoomIn)    btnZoomIn.addEventListener("click",    () => zoomAt(clampZoom(zoomLevel + ZOOM_STEP), viewport.getBoundingClientRect().left + viewport.clientWidth / 2, viewport.getBoundingClientRect().top + viewport.clientHeight / 2));
+  if (btnZoomOut)   btnZoomOut.addEventListener("click",   () => zoomAt(clampZoom(zoomLevel - ZOOM_STEP), viewport.getBoundingClientRect().left + viewport.clientWidth / 2, viewport.getBoundingClientRect().top + viewport.clientHeight / 2));
+  if (btnZoomReset) btnZoomReset.addEventListener("click", () => resetZoom());
+
+  // Mouse-wheel: zoom em modo Página; em Cascata o scroll é livre
+  viewport.addEventListener("wheel", (e) => {
+    if (!modal.classList.contains("active")) return;
+    if (readingMode === "cascade") return; // let cascade scroll normally
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+    zoomAt(clampZoom(zoomLevel + delta), e.clientX, e.clientY);
+  }, { passive: false });
+
+  // â”€â”€ Click on canvas to toggle zoom (only if no drag happened) â”€
+  canvas.addEventListener("click", (e) => {
+    if (dragMoved) { dragMoved = false; return; }
+    if (zoomLevel > 1.0) {
+      resetZoom();
+    } else {
+      // Zoom-in centred on click point
+      zoomAt(1.5, e.clientX, e.clientY);
+    }
+  });
+
+  // â”€â”€ Mouse drag to pan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  canvas.addEventListener("mousedown", (e) => {
+    if (zoomLevel <= 1.0) return;
+    if (e.button !== 0) return;
+    e.preventDefault();
+    isDragging    = true;
+    dragMoved     = false;
+    dragStartMouseX = e.clientX;
+    dragStartMouseY = e.clientY;
+    dragStartPanX   = panX;
+    dragStartPanY   = panY;
+    canvas.style.cursor = "grabbing";
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartMouseX;
+    const dy = e.clientY - dragStartMouseY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+    panX = dragStartPanX + dx;
+    panY = dragStartPanY + dy;
+    clampPan();
+    applyTransform();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!isDragging) return;
+    isDragging = false;
+    applyTransform(); // restores grab cursor
+    // Keep dragMoved true briefly so the click handler can see it
+    setTimeout(() => { dragMoved = false; }, 50);
+  });
+
+  // â”€â”€ Keyboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  document.addEventListener("keydown", (e) => {
+    if (!modal.classList.contains("active")) return;
+    if (e.key === "Escape") {
+      closeManga();
+    } else if (e.key === "ArrowLeft") {
+      if (readingMode === "page") prevPage();
+      else viewport.scrollBy({ top: -viewport.clientHeight * 0.8, behavior: "smooth" });
+    } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      if (readingMode === "page") nextPage();
+      else viewport.scrollBy({ top: viewport.clientHeight * 0.8, behavior: "smooth" });
+    } else if (e.key === "ArrowUp") {
+      if (readingMode === "cascade") viewport.scrollBy({ top: -viewport.clientHeight * 0.8, behavior: "smooth" });
+    } else if (e.key === "+" || e.key === "=") {
+      const cx = viewport.getBoundingClientRect().left + viewport.clientWidth  / 2;
+      const cy = viewport.getBoundingClientRect().top  + viewport.clientHeight / 2;
+      zoomAt(clampZoom(zoomLevel + ZOOM_STEP), cx, cy);
+    } else if (e.key === "-") {
+      const cx = viewport.getBoundingClientRect().left + viewport.clientWidth  / 2;
+      const cy = viewport.getBoundingClientRect().top  + viewport.clientHeight / 2;
+      zoomAt(clampZoom(zoomLevel - ZOOM_STEP), cx, cy);
+    }
+  });
+
+  // â”€â”€ Scroll page indicator update (cascade mode) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  viewport.addEventListener("scroll", () => {
+    if (readingMode !== "cascade") return;
+    const pages = canvas.querySelectorAll(".manga-page");
+    if (!pages.length) return;
+    const vCenter = viewport.scrollTop + viewport.clientHeight / 2;
+    let best = 0, bestDist = Infinity;
+    pages.forEach((pg, idx) => {
+      const dist = Math.abs((pg.offsetTop + pg.offsetHeight / 2) - vCenter);
+      if (dist < bestDist) { bestDist = dist; best = idx; }
+    });
+    currentPageIndex = best;
+    currentIndicator.textContent = best + 1;
+  });
+
+  // â”€â”€ Touch swipe (page mode) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  viewport.addEventListener("touchstart", (e) => {
+    if (zoomLevel > 1.0) return;
+    touchstartX = e.changedTouches[0].screenX;
+    touchstartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  viewport.addEventListener("touchend", (e) => {
+    if (zoomLevel > 1.0) return;
+    touchendX = e.changedTouches[0].screenX;
+    touchendY = e.changedTouches[0].screenY;
+    const dx = touchendX - touchstartX;
+    const dy = touchendY - touchstartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+      if (dx > 0) prevPage(); else nextPage();
+    }
+  }, { passive: true });
 }
